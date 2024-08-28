@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            width: 300px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h2 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .user-list {
+            margin-top: 20px;
+        }
+        .user-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Add User</h2>
+        <label for="uuid">UUID:</label>
+        <input type="text" id="uuid" placeholder="Enter UUID">
+        <label for="name">Name:</label>
+        <input type="text" id="name" placeholder="Enter Name">
+        <button onclick="addUser()">Add User</button>
+        <button onclick="getUsers()">Get Users</button>
+        <div class="user-list" id="user-list"></div>
+    </div>
+
+    <script>
+        const apiUrl = 'http://localhost:8080/users';
+
+        async function addUser() {
+            const uuid = document.getElementById('uuid').value;
+            const name = document.getElementById('name').value;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ uuid, name })
+            });
+
+            if (response.ok) {
+                alert('User added successfully!');
+                document.getElementById('uuid').value = '';
+                document.getElementById('name').value = '';
+            } else {
+                alert('Failed to add user');
+            }
+        }
+
+        async function getUsers() {
+            const response = await fetch(apiUrl);
+
+            if (response.ok) {
+                const users = await response.json();
+                const userList = document.getElementById('user-list');
+                userList.innerHTML = ''; // Clear previous list
+                users.forEach(user => {
+                    const userItem = document.createElement('div');
+                    userItem.className = 'user-item';
+                    userItem.textContent = `UUID: ${user.uuid}, Name: ${user.name}`;
+                    userList.appendChild(userItem);
+                });
+            } else {
+                alert('Failed to get users');
+            }
+        }
+    </script>
+</body>
+</html>
